@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from LogHelper import logger, song_logger
 from ElasticHelper import create_json
+from string import digits
 
 class FtpCrawler():
 
@@ -16,7 +17,7 @@ class FtpCrawler():
         self.ftp.connect(os.environ.get('FTP'), 7777)
         self.ftp.login(os.environ.get('FTP_USER'), os.environ.get('FTP_PWD'))
 
-        return self.ftp
+        return self
 
     def __exit__(self, type, value, traceback):
         self.ftp.quit()
@@ -27,24 +28,24 @@ class FtpCrawler():
         self.ftp.cwd(directory)
         for entry in (path for path in self.ftp.nlst() if path not in ('.', '..')):
             try:
-                logger.debug("Enter directory: " + entry)
+                logger.debug("Entering directory: {}".format(entry))
                 self.ftp.cwd(entry)
                 for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
-                    logger.debug("entry " + entry)
-                    logger.debug("sub_entry " + filename)
-                    logger.debug("path " + path)
+                    logger.debug("entry {}".format(entry))
+                    logger.debug("sub_entry {}".format(filename))
+                    logger.debug("path {}".format(path))
                     song_logger.info(directory + "," + filename.replace('-www.groovytunes.org',''))
                     
-                    logger.debug("getting timestamp of " + filename)
+                    logger.debug("getting timestamp of {}".format(filename))
                     timestamp = self.ftp.voidcmd("MDTM " + filename)[4:].strip()
                     sTime = parser.parse(timestamp).strftime("%Y.%m.%d %H:%M:%S")
                     sDirectory = directory + "/" + entry
                     sFullFilename = path + directory + "/" + entry + "/" + filename
-                    sPrettyFilename = filename.replace('-www.groovytunes.org','')
+                    sPrettyFilename = filename.replace('-www.groovytunes.org','').lstrip(digits).lstrip('-').replace('_', ' ')
                     sSize = self.ftp.size(filename)
 
-                    logger.debug('ftp.size ' + path + directory + "/" + filename)
-                    create_json("BEATPORT", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, sSize)
+                    logger.debug("ftp.size {0}/{1}".format(path + directory, filename))
+                    create_json("0DAY", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, sSize)
                 self.ftp.cwd('..')
             except Exception:
                 logger.error("Listing error: ", exc_info=True)

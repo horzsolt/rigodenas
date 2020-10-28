@@ -1,7 +1,7 @@
 from elasticsearch import Elasticsearch
 from LogHelper import logger
 
-def es_create_index(es_object, index_name="demo"):
+def es_create_index(index_name="demo"):
     
     settings = {
         "settings": {
@@ -36,16 +36,15 @@ def es_create_index(es_object, index_name="demo"):
         }
     }
     try:
-        if not es_object.indices.exists(index_name):
-            es_object.indices.create(index=index_name, ignore=400, body=settings)
+        if not es.indices.exists(index_name):
+            es.indices.create(index=index_name, ignore=400, body=settings)
             logger.debug('Index created')
     except Exception as ex:
         logger.error(ex, exc_info=True)
 
-def es_store_record(es_object, record, index_name="demo"):
-
+def es_store_record(record, index_name="demo"):
     try:
-        es_object.index(index=index_name, doc_type='songs', body=record)
+        es.index(index=index_name, doc_type='songs', body=record)
     except Exception as ex:
         logger.error(ex, exc_info=True)
 
@@ -62,10 +61,10 @@ def create_json(group, time, filename, directory, full_filename, pretty_filename
     }
 
     logger.debug(json)
-    es_store_record(es, json)
+    es_store_record(json)
 
 es_indexname = "customer"
 es = Elasticsearch([{'host': '192.168.0.210', 'port': 9200}])
 if not es.ping():
     raise Exception("Couldn't connect to ES")
-es_create_index(es)
+es_create_index()
