@@ -63,7 +63,7 @@ def create_json(group, time, filename, directory, full_filename, pretty_filename
     logger.debug(json)
     es_store_record(json)
 
-es_indexname = "customer"
+es_indexname = "rigodetools"
 es = Elasticsearch([{'host': '192.168.0.210', 'port': 9200}])
 if not es.ping():
     raise Exception("Couldn't connect to ES")
