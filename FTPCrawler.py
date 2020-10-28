@@ -17,3 +17,4 @@ try:
 except Exception as ex:
     logger.error(ex, exc_info=True)
     print(ex)
+    raise Exception("Report abnormal termination to the NAS scheduler")

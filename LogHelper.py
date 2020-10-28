@@ -14,4 +14,4 @@ def setup_logger(name, log_file, formatter, level=logging.DEBUG):
 song_formatter = logging.Formatter('')
 song_logger = setup_logger('first_logger', 'songs.log', song_formatter)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logger = setup_logger('error_logger', 'application.log', formatter)
+logger = setup_logger('error_logger', 'application.log', formatter, logging.INFO)
