@@ -2,9 +2,12 @@ import os
 from ftplib import FTP
 from datetime import datetime, timedelta
 from dateutil import parser
-from LogHelper import logger, song_logger
-from ElasticHelper import create_json
+from loghelper import logger, song_logger
+from elastichelper import es_store_record
 from string import digits
+from songhelper import favourites, banned
+from ftpfile import FtpFile
+from configparser import ConfigParser
 
 class FtpCrawler():
 
@@ -12,10 +15,15 @@ class FtpCrawler():
         self.ftp = FTP()
         self.ftp.encoding = 'cp1252'
         self.ftp.set_pasv(True)
+        self.queue = []
 
     def __enter__(self):
-        self.ftp.connect(os.environ.get('FTP'), 7777)
-        self.ftp.login(os.environ.get('FTP_USER'), os.environ.get('FTP_PWD'))
+        config_object = ConfigParser()
+        config_object.read("config.ini")
+        serverinfo = config_object["SERVERCONFIG"]
+
+        self.ftp.connect(serverinfo["HOST"], 7777)
+        self.ftp.login(serverinfo["USER"], serverinfo["PWD"])
 
         return self
 
@@ -37,15 +45,26 @@ class FtpCrawler():
                     song_logger.info(directory + "," + filename.replace('-www.groovytunes.org',''))
                     
                     logger.debug("getting timestamp of {}".format(filename))
+
                     timestamp = self.ftp.voidcmd("MDTM " + filename)[4:].strip()
                     sTime = parser.parse(timestamp).strftime("%Y.%m.%d %H:%M:%S")
                     sDirectory = directory + "/" + entry
                     sFullFilename = path + directory + "/" + entry + "/" + filename
                     sPrettyFilename = filename.replace('-www.groovytunes.org','').lstrip(digits).lstrip('-').replace('_', ' ')
-                    sSize = self.ftp.size(filename)
+                    size = self.ftp.size(filename)
 
+                    ftpFile = FtpFile("0DAY", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, size)
                     logger.debug("ftp.size {0}/{1}".format(path + directory, filename))
-                    create_json("0DAY", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, sSize)
+                    es_store_record(ftpFile.toDict())
+
+                    result = [fav_element for fav_element in banned if fav_element.upper() in sDirectory.upper()]
+                    if (len(result) == 0):
+                        result = [fav_element for fav_element in favourites if fav_element.upper() in sDirectory.upper()]
+                        if (len(result) > 0):
+                            if (size < 52914560):
+                                self.queue.append(ftpFile)
+
+
                 self.ftp.cwd('..')
             except Exception:
                 logger.error("Listing error: ", exc_info=True)
@@ -70,11 +89,13 @@ class FtpCrawler():
                     sDirectory = directory + "/" + entry
                     sFullFilename = path + directory + "/" + entry + "/" + filename
                     sPrettyFilename = filename.replace('-www.groovytunes.org','')
-                    sSize = self.ftp.size(filename)
+                    size = self.ftp.size(filename)
                     extension = os.path.splitext(filename)[1]
 
+                    ftpFile = FtpFile("0DAY", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, size)
+
                     if (extension == ".mp3"):
-                        create_json("BEATPORT", sTime, filename, sDirectory, sFullFilename, sPrettyFilename, sSize)
+                        es_store_record(ftpFile.toDict())
                     else:
                         logger.debug("Extension " + extension + " will not be stored.")
                 self.ftp.cwd('..')

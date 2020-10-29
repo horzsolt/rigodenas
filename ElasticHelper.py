@@ -1,7 +1,8 @@
 from elasticsearch import Elasticsearch
 from LogHelper import logger
+from configparser import ConfigParser
 
-def es_create_index(index_name="demo"):
+def es_create_index():
     
     settings = {
         "settings": {
@@ -36,34 +37,23 @@ def es_create_index(index_name="demo"):
         }
     }
     try:
-        if not es.indices.exists(index_name):
-            es.indices.create(index=index_name, ignore=400, body=settings)
+        if not es.indices.exists(es_index_name):
+            es.indices.create(index=es_index_name, ignore=400, body=settings)
             logger.debug('Index created')
     except Exception as ex:
         logger.error(ex, exc_info=True)
 
-def es_store_record(record, index_name="demo"):
+def es_store_record(record):
     try:
-        es.index(index=index_name, doc_type='songs', body=record)
+        es.index(index=es_index_name, doc_type='songs', body=record)
     except Exception as ex:
         logger.error(ex, exc_info=True)
 
-def create_json(group, time, filename, directory, full_filename, pretty_filename, size):
-    logger.debug("About to create JSON")
+config_object = ConfigParser()
+config_object.read("config.ini")
+elasticinfo = config_object["ELASTICCONFIG"]
 
-    json = {
-        "group": group,
-        "date": time,
-        "filename": filename,
-        "directory": directory,        
-        "full_filename": full_filename,
-        "pretty_filename": pretty_filename
-    }
-
-    logger.debug(json)
-    es_store_record(json)
-
-es_indexname = "rigodetools"
+es_index_name = elasticinfo["INDEX"]
 es = Elasticsearch([{'host': '192.168.0.210', 'port': 9200}])
 if not es.ping():
     raise Exception("Couldn't connect to ES")
