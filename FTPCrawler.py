@@ -1,6 +1,7 @@
-from LogHelper import logger
+from loghelper import logger
 from datetime import datetime, timedelta
-from FTPHelper import FtpCrawler
+from ftphelper import FtpCrawler
+from codetiming import Timer
 
 try:
 
@@ -10,9 +11,12 @@ try:
     logger.debug(today_directory)
     print("Start crawling of {}".format(today_directory))
 
-    with FtpCrawler() as ftpcrawler:
-        ftpcrawler.list_beatport_directory(today_directory)
-        ftpcrawler.list_0day_directory(today_directory)
+    with Timer():
+        with FtpCrawler() as ftpcrawler:
+            ftpcrawler.list_beatport_directory(today_directory)
+            ftpcrawler.list_0day_directory(today_directory)
+            ftpcrawler.download_queue_bt(today_directory)
+            ftpcrawler.download_queue_oday(today_directory)            
 
 except Exception as ex:
     logger.error(ex, exc_info=True)

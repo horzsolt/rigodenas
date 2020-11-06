@@ -9,3 +9,8 @@ http://192.168.0.210:5601/app/discover#/?_g=(filters:!(),refreshInterval:(pause:
 
 NAS command:
 /volume1/@appstore/py3k/usr/local/bin/python3 FTPCrawler.py
+
+/volume1/@appstore/python3/bin/python3.7 FTPCrawler.py
+
+using pip: 
+/volume1/@appstore/python3/bin/python3.7 -m pip install reconnecting_ftp
