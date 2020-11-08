@@ -17,7 +17,7 @@ class FtpCrawler():
     def __init__(self):
 
         config_object = ConfigParser()
-        config_object.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
+        config_object.read(os.path.join(os.path.dirname(os.path.realpath(__file__)),"config.ini"))
         serverinfo = config_object["CONFIG"]
 
         self.host = serverinfo["HOST"]
@@ -67,10 +67,11 @@ class FtpCrawler():
             for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
                 logger.debug(f"Checking filename {filename}")
 
-                if not os.path.exists(self.download_root + directory + "\\" + ftpfile.group + "\\" + ftpfile.directory):
-                    os.makedirs(self.download_root + directory + "\\" + ftpfile.group + "\\" + ftpfile.directory)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,ftpfile.directory)
+                if not os.path.exists(destination_dir):
+                    os.makedirs(destination_dir)
 
-                local_filename = self.download_root + directory + "\\"  + ftpfile.group + "\\" + ftpfile.directory + "\\" + filename.replace('-www.groovytunes.org','').replace('_', ' ')
+                local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org','').replace('_', ' '))
 
                 if not os.path.exists(local_filename):
                     if (ftpfile.size < 52914560):                    
@@ -109,10 +110,11 @@ class FtpCrawler():
             for filename in (path for path in self.ftp.nlst()[1:] if path not in ('.', '..')): #first entry is always a sub directory
                 logger.debug(f"Checking filename {filename}")
 
-                if not os.path.exists(self.download_root + directory + "\\" + ftpfile.group + "\\" + ftpfile.directory):
-                    os.makedirs(self.download_root + directory + "\\" + ftpfile.group + "\\" + ftpfile.directory)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,ftpfile.directory)
+                if not os.path.exists(destination_dir):
+                    os.makedirs(destination_dir)
 
-                local_filename = self.download_root + directory + "\\"  + ftpfile.group + "\\" + ftpfile.directory + "\\" + filename.replace('-www.groovytunes.org','')
+                local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org',''))
 
                 if not os.path.exists(local_filename):
                     if (ftpfile.size < 52914560):                    
@@ -166,7 +168,7 @@ class FtpCrawler():
                             logger.info(f"Adding to BT q {entry}")
                             self.queue_bt.append(ftpFile)
 
-                self.matcher_list.append(filename)                 
+                self.matcher_list.append(entry)                 
                 self.ftp.cwd('..')
             except Exception:
                 logger.error("Listing error: ", exc_info=True)
@@ -206,7 +208,7 @@ class FtpCrawler():
                             logger.info(f"Adding to 0-day q {entry}")
                             self.queue_oday.append(ftpFile)
 
-                self.matcher_list.append(filename)
+                self.matcher_list.append(entry)
                 self.ftp.cwd('..')
             except Exception:
                 logger.error("Listing error: ", exc_info=True)
