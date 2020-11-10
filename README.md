@@ -13,4 +13,7 @@ NAS command:
 /volume1/@appstore/python3/bin/python3.7 ftpcrawler.py
 
 using pip: 
-/volume1/@appstore/python3/bin/python3.7 -m pip install dateutil
+/volume1/@appstore/python3/bin/python3.7 -m pip install mariadb
+
+
+/volume1/homes/horzsolt/.local/bin/pipenv

@@ -10,7 +10,7 @@ from configparser import ConfigParser
 from codetiming import Timer
 import difflib
 import reconnecting_ftp
-#import ftplib
+from m3u import generate_m3u
 
 class FtpCrawler():
 
@@ -87,6 +87,7 @@ class FtpCrawler():
                 else:
                     logger.info(f"File already exists {local_filename}.")
 
+            generate_m3u(destination_dir)
             self.ftp.cwd("..")
 
     def download_queue_oday(self, directory):
