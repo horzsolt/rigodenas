@@ -10,7 +10,7 @@ from configparser import ConfigParser
 from codetiming import Timer
 import difflib
 import reconnecting_ftp
-from m3u import generate_m3u
+from local_file_helper import clean_download_directory
 
 class FtpCrawler():
 
@@ -42,7 +42,7 @@ class FtpCrawler():
     def __exit__(self, type, value, traceback):
 
         logger.debug("Downloaded BT {}".format(len(self.queue_bt)))
-        logger.debug("Downloaded 0Day {}".format(len(self.queue_oday)))        
+        logger.debug("Downloaded 0Day {}".format(len(self.queue_oday)))
         self.ftp.close()
 
     def download_queue_bt(self, directory):
@@ -58,8 +58,6 @@ class FtpCrawler():
         timer = Timer(text="Track downloaded in {:0.2f} seconds", logger=logger.info)
 
         for ftpfile in self.queue_bt:
-            #print("Current directory {}".format(self.ftp.pwd()))
-            #print("cwd to {}".format(ftpfile.directory))
 
             self.ftp.cwd(ftpfile.directory)
 
@@ -67,14 +65,14 @@ class FtpCrawler():
             for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
                 logger.debug(f"Checking filename {filename}")
 
-                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,ftpfile.directory)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group, ftpfile.directory)
                 if not os.path.exists(destination_dir):
                     os.makedirs(destination_dir)
 
                 local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org','').replace('_', ' '))
 
                 if not os.path.exists(local_filename):
-                    if (ftpfile.size < 52914560):                    
+                    if (ftpfile.size < 52914560):
                         logger.info(f"Downloading {filename} to {local_filename}")
 
                         timer.start()
@@ -87,7 +85,7 @@ class FtpCrawler():
                 else:
                     logger.info(f"File already exists {local_filename}.")
 
-            generate_m3u(destination_dir)
+            clean_download_directory(destination_dir)
             self.ftp.cwd("..")
 
     def download_queue_oday(self, directory):
@@ -108,41 +106,45 @@ class FtpCrawler():
 
             self.ftp.cwd(ftpfile.directory)
 
-            for filename in (path for path in self.ftp.nlst()[1:] if path not in ('.', '..')): #first entry is always a sub directory
+            for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')): #first entry is always a sub directory
                 logger.debug(f"Checking filename {filename}")
-
-                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,ftpfile.directory)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group, ftpfile.directory)
                 if not os.path.exists(destination_dir):
                     os.makedirs(destination_dir)
 
                 local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org',''))
 
-                if not os.path.exists(local_filename):
-                    if (ftpfile.size < 52914560):                    
-                        logger.info(f"Downloading {filename} to {local_filename}")
-
-                        timer.start()
-                        file = open(local_filename, 'wb')
-                        self.ftp.retrbinary('RETR '+ filename, file.write)
-                        file.close()
-                        timer.stop()
-                    else:
-                        logger.warn(f"Skip oversized file {filename}")
+                if (filename.startswith('-[')):
+                    os.makedirs(local_filename)
                 else:
-                    logger.warn(f"File already exists {local_filename}.")
-            self.ftp.cwd("..")            
+                    if not os.path.exists(local_filename):
+                        if (ftpfile.size < 52914560):
+                            logger.info(f"Downloading {filename} to {local_filename} with size {ftpfile.size}")
+
+                            timer.start()
+                            file = open(local_filename, 'wb')
+                            self.ftp.retrbinary('RETR '+ filename, file.write)
+                            file.close()
+                            timer.stop()
+                        else:
+                            logger.warn(f"Skip oversized file {filename}")
+                    else:
+                        logger.warn(f"File already exists {local_filename}.")
+
+            clean_download_directory(destination_dir)
+            self.ftp.cwd("..")
 
     def list_beatport_directory(self, directory):
-        path = "/MP3/BEATPORT__AND__WEBSITE_SECTION/"        
+        path = "/MP3/BEATPORT__AND__WEBSITE_SECTION/"
         self.ftp.cwd(path)
         self.ftp.cwd(directory)
-       
+
         for entry in (path for path in self.ftp.nlst() if path not in ('.', '..')):
             try:
                 logger.debug("Entering directory: {}".format(entry))
                 self.ftp.cwd(entry)
 
-                ftpFile = FtpFile("BEATPORT__AND__WEBSITE_SECTION", entry)
+                ftpFile = FtpFile("BEATPORT__AND__WEBSITE_SECTION", entry, path + directory)
 
                 for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
                     largest = 0
@@ -150,7 +152,7 @@ class FtpCrawler():
                     logger.debug("sub_entry {}".format(filename))
                     logger.debug("path {}".format(path))
                     song_logger.info(directory + "," + filename.replace('-www.groovytunes.org',''))
-                    
+
                     logger.debug("getting timestamp of {}".format(filename))
                     size = self.ftp.size(filename)
 
@@ -158,18 +160,17 @@ class FtpCrawler():
                         largest = size
                         ftpFile.size = size
 
-                    logger.debug("ftp.size {0}/{1}".format(path + directory, filename))
-                    es_store_record(ftpFile.toDict())
+                es_store_record(ftpFile.toDict())
 
-                result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper()]
+                result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):
-                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper()]
+                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
                     if (len(result) > 0):
                         if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
                             logger.info(f"Adding to BT q {entry}")
                             self.queue_bt.append(ftpFile)
 
-                self.matcher_list.append(entry)                 
+                self.matcher_list.append(entry)
                 self.ftp.cwd('..')
             except Exception:
                 logger.error("Listing error: ", exc_info=True)
@@ -184,26 +185,27 @@ class FtpCrawler():
                 logger.debug("Entering directory: " + entry)
                 self.ftp.cwd(entry)
 
-                ftpFile = FtpFile("0-DAY", entry)
+                ftpFile = FtpFile("0-DAY", entry, path + directory)
+
+                largest = 0
 
                 for filename in (path for path in self.ftp.nlst()[1:] if path not in ('.', '..')): #first entry is always a sub directory
-                    largest = 0
                     logger.debug("entry " + entry)
                     logger.debug("sub_entry " + filename)
                     logger.debug("path " + path)
                     song_logger.info(directory + "," + filename.replace('-www.groovytunes.org',''))
-                    
+
                     size = self.ftp.size(filename)
 
                     if (largest < size):
                         largest = size
                         ftpFile.size = size
 
-                    es_store_record(ftpFile.toDict())
+                es_store_record(ftpFile.toDict())
 
-                result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper()]
+                result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):
-                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper()]
+                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
                     if (len(result) > 0):
                         if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
                             logger.info(f"Adding to 0-day q {entry}")

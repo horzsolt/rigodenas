@@ -4,7 +4,7 @@ from configparser import ConfigParser
 import os
 
 def es_create_index():
-    
+
     settings = {
         "settings": {
             "number_of_shards": 1,
@@ -23,7 +23,7 @@ def es_create_index():
                     },
                     "directory": {
                         "type": "text"
-                    },                    
+                    },
                     "filename": {
                         "type": "text"
                     },
@@ -32,7 +32,7 @@ def es_create_index():
                     },
                     "pretty_filename": {
                         "type": "text"
-                    }                    
+                    }
                 }
             }
         }
@@ -46,11 +46,13 @@ def es_create_index():
 
 def es_store_record(record):
     try:
+        logger.debug(f"es_store_record in index: {es_index_name} record {record}")
         es.index(index=es_index_name, body=record)
+
     except Exception as ex:
         logger.error(ex, exc_info=True)
 
-print(os.path.dirname(os.path.realpath(__file__)))
+#print(os.path.dirname(os.path.realpath(__file__)))
 config_object = ConfigParser()
 config_object.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 elasticinfo = config_object["CONFIG"]
@@ -59,4 +61,4 @@ es_index_name = elasticinfo["ELASTIC_INDEX"]
 es = Elasticsearch([{'host': '192.168.0.210', 'port': 9200}])
 if not es.ping():
     raise Exception("Couldn't connect to ES")
-#es_create_index()
+es_create_index()

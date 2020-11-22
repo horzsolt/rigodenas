@@ -1,28 +1,34 @@
 class FtpFile:
 
-    def __init__(self, group, directory, size=0):
-        self.__group = group
-        self.__directory = directory
+    def __init__(self, group, directory, path, size=0):
+        self._group = group
+        self._directory = directory
+        self._path = path
 
     @property
     def size(self):
-        return self.__size
+        return self._size
 
     @size.setter
     def size(self, value):
-        self.__size = value
+        self._size = value
 
     @property
     def group(self):
-        return self.__group
+        return self._group
 
     @property
     def directory(self):
-        return self.__directory
+        return self._directory
+
+    @property
+    def path(self):
+        return self._path
 
     def toDict(self):
         return {
-            "group": self.__group,
-            "directory": self.__directory,  
-            "size": self.__size      
+            "group": self._group,
+            "directory": self._directory,
+            "size": self._size,
+            "path": self._path
         }

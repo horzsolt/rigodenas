@@ -2,7 +2,7 @@ import logging
 
 def setup_logger(name, log_file, formatter, level=logging.DEBUG):
 
-    handler = logging.FileHandler(log_file)        
+    handler = logging.FileHandler(log_file, encoding = "UTF-8")
     handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
