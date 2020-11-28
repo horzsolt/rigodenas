@@ -2,8 +2,11 @@ import os
 from mp3helper import get_audio_info
 import shutil
 from m3u import generate_m3u
+from loghelper import logger
 
 def clean_download_directory(directory):
+
+    logger.debug(f"Cleaning directory: {directory}")
 
     for filename in os.listdir(directory):
         fullpath = os.path.join(directory,filename)
@@ -15,7 +18,7 @@ def clean_download_directory(directory):
         else:
             clean_download_directory(fullpath)
 
-    if not [f for f in os.listdir(directory) if os.path.isfile(f) and f.endswith('.mp3')]:
+    if not [f for f in os.listdir(directory) if f.endswith('.mp3')]:
         shutil.rmtree(directory)
     else:
         generate_m3u(directory)

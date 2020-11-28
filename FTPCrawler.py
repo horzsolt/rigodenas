@@ -2,7 +2,6 @@ from loghelper import logger
 from datetime import datetime, timedelta
 from ftphelper import FtpCrawler
 from codetiming import Timer
-from mariadbhelper import MariaDBHelper
 import sys
 
 try:
@@ -22,8 +21,8 @@ try:
         timer.start()
         ftpcrawler.list_beatport_directory(today_directory)
         ftpcrawler.list_0day_directory(today_directory)
-        #ftpcrawler.download_queue_bt(today_directory)
-        #ftpcrawler.download_queue_oday(today_directory)
+        ftpcrawler.download_queue_bt(today_directory)
+        ftpcrawler.download_queue_oday(today_directory)
 
         timer.stop()
         download_time = Timer.timers["ftp"]
