@@ -55,9 +55,9 @@ def es_store_record(record):
 #print(os.path.dirname(os.path.realpath(__file__)))
 config_object = ConfigParser()
 config_object.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
-elasticinfo = config_object["CONFIG"]
+config = config_object["CONFIG"]
 
-es_index_name = elasticinfo["ELASTIC_INDEX"]
+es_index_name = config["ELASTIC_INDEX"]
 es = Elasticsearch([{'host': '192.168.0.210', 'port': 9200}])
 if not es.ping():
     raise Exception("Couldn't connect to ES")

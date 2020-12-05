@@ -18,3 +18,6 @@ favourites = ("TALE_OF_US", "UMEK", "ANJUNA", "ISMA", "BUUREN", "DIGWEED","SAIZ"
             "space_92", "moses", "monkey_safari", "Schories", "Bushwacka", "weska", "eelke", "gutenn")
 
 banned = ("HARDSTYLE", "HARD", "GOA", "DRUM_AND_BASS", "_PSY_", "90S", "TRAP_", "TANZ", "CHILLHOUSE", "RETRO","HOT_DANCE", "EDM")
+
+def generate_favs_from_prev_mix(mix_path):
+    pass
