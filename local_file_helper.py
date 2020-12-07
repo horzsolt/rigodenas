@@ -12,9 +12,12 @@ def clean_download_directory(directory):
         fullpath = os.path.join(directory,filename)
         if (os.path.isfile(fullpath)):
             if (filename.endswith('.mp3')):
-                length_minutes, bitrate = get_audio_info(fullpath)
-                if (length_minutes > 25) or (length_minutes < 4) or (bitrate < 192):
-                    os.remove(fullpath)
+                try:
+                    length_minutes, bitrate = get_audio_info(fullpath)
+                    if (length_minutes > 25) or (length_minutes < 4) or (bitrate < 192):
+                        os.remove(fullpath)
+                except Exception as ex:
+                    logger.error(f"Audio info couldn't be determined. Keeping the file {fullpath}")
         else:
             clean_download_directory(fullpath)
 

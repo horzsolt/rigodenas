@@ -12,6 +12,6 @@ def get_audio_info(path):
         bitrate = audio.info.bitrate/1000
         return length_minutes, bitrate
     except Exception as ex:
-        logger.error(f"error get_audio_info of {path}")
-        send_plaintext_mail(f"error get_audio_info of {path}")
         logger.error(ex, exc_info=True)
+        send_plaintext_mail(f"error get_audio_info of {path}")
+        raise ex
