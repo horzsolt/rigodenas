@@ -27,18 +27,6 @@ try:
         timer.stop()
         download_time = Timer.timers["ftp"]
 
-        #Couldn't install mariadb client on the NAS
-        """
-        with MariaDBHelper() as mariadb:
-            mariadb.add_daily_summary(today_directory, f"Finished in {download_time:1f} minutes", len(ftpcrawler.queue_bt), len(ftpcrawler.queue_oday))
-
-            for ftpfile in ftpcrawler.queue_bt:
-                mariadb.add_daily_detail(today_directory, ftpfile.directory, "BEATPORT")
-
-            for ftpfile in ftpcrawler.queue_oday:
-                mariadb.add_daily_detail(today_directory, ftpfile.directory, "0-DAY")
-        """
-
 except Exception as ex:
     logger.error(ex, exc_info=True)
     print(ex)

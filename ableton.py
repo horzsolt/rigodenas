@@ -6,7 +6,7 @@ import xmltodict
 import datetime
 
 def __convert_millisec_to_time__(str_time):
-    time = int(str_time) % (24 * 3600)
+    time = float(str_time) % (24 * 3600)
     hour = time // 3600
     time %= 3600
     minutes = time // 60

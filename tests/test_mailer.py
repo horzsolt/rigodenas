@@ -19,4 +19,4 @@ def test_html_mailer():
     </html>
     """
 
-    send_html_mail(html)
+    #send_html_mail(html)

@@ -4,7 +4,8 @@ sys.path.append('..')
 from ableton import parse_ableton_project, generate_tracklist
 
 def test_parse():
-    list_title, list_time = parse_ableton_project(r'q:\!mix\2020_13\template Project\2020_13.als')
+    ableton_file = r'q:\!mix\2021_04\template Project\2021_04.als'
+    list_title, list_time = parse_ableton_project(ableton_file)
     print(list_title)
 
-    generate_tracklist(r'q:\!mix\2020_13\template Project\2020_13.als')
+    generate_tracklist(ableton_file)

@@ -146,8 +146,9 @@ class FtpCrawler():
 
                 ftpFile = FtpFile("BEATPORT__AND__WEBSITE_SECTION", entry, path + directory)
 
+                largest = 0
+
                 for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
-                    largest = 0
                     logger.debug("entry {}".format(entry))
                     logger.debug("sub_entry {}".format(filename))
                     logger.debug("path {}".format(path))
@@ -158,8 +159,9 @@ class FtpCrawler():
 
                     if (largest < size):
                         largest = size
-                        ftpFile.size = size
+                    ftpFile.size = size
 
+                logger.debug(ftpFile)
                 es_store_record(ftpFile.toDict())
 
                 result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]

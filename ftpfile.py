@@ -1,9 +1,10 @@
 class FtpFile:
 
-    def __init__(self, group, directory, path, size=0):
+    def __init__(self, group, directory, path):
         self._group = group
         self._directory = directory
         self._path = path
+        self.size = 0
 
     @property
     def size(self):
@@ -29,6 +30,9 @@ class FtpFile:
         return {
             "group": self._group,
             "directory": self._directory,
-            "size": self._size,
+            "size": self.size,
             "path": self._path
         }
+
+    def __str__(self):
+        return self._group + " " + str(self.size)
