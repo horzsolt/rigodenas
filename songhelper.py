@@ -16,10 +16,10 @@ favourites = ("TALE_OF_US", "UMEK", "ANJUNA", "ISMA", "BUUREN", "DIGWEED","SAIZ"
             "Dubfire", "FERRER", "Liebing", "Gorgon", "Loco_Dice", "Adriatique", "Monika_Kruse", "Zabiela", "Fancuilli", "Witte", "Adam_Beyer", "Amelie_Lens",
             "Peggy_Gou", "En_Pure", "De_Luca", "ANNA", "Carola", "Solardo", "Solomun", "Hawtin", "Maya_Jane_Coles", "Nastia", "Rebekah", "VonStroke", "La_Fleur",
             "space_92", "moses", "monkey_safari", "Schories", "Bushwacka", "weska", "eelke", "gutenn", "pugliesi", "BLR_", "Oxia", "Masseyeff", "JAAR",
-            "SHANE54", "SAHNE_54", "Tenerfuse", "Abity", "Anakim", "ANUQRAM", "COCHO", "Neuland", "Einmusik", "evgeny_lebedev", "FLOA", "humantronic", "capuano",
-            "Léger", "LEGER", "MUIR", "Kolsch", "Monolink", "Moonbootica")
+            "SHANE54", "SHANE_54", "Tenerfuse", "Abity", "Anakim", "ANUQRAM", "COCHO", "Neuland", "Einmusik", "evgeny_lebedev", "FLOA", "humantronic", "capuano",
+            "Léger", "LEGER", "MUIR", "Kolsch", "Monolink", "Moonbootica", "Federico_Geckard")
 
-banned = ("AFRO", "HARDSTYLE", "HARD", "GOA", "DRUM_AND_BASS", "_PSY_", "90S", "TRAP_", "TANZ", "CHILLHOUSE", "RETRO","HOT_DANCE", "EDM")
+banned = ("AFRO", "HARDSTYLE", "HARD", "GOA", "DRUM_AND_BASS", "_PSY_", "90S", "TRAP_", "TANZ", "CHILLHOUSE", "RETRO","HOT_DANCE", "EDM", "TECH HOUSE", "TECH_HOUSE", "TECHOUSE", "Traxsource")
 
 def generate_favs_from_prev_mix(mix_path):
     pass
