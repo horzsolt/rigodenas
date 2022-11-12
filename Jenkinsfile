@@ -42,10 +42,10 @@ pipeline {
   }
   post {
     success {  
-      mail body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', mimeType: 'text/html', subject: "SUCCESS CI: Project name -> ${env.JOB_NAME}", to: "${env.tomail}";  
+      mail body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', mimeType: 'text/html', subject: "SUCCESS CI: Project name -> ${env.JOB_NAME}", to: "horzsolt2006@gmail.com";  
     }  
     failure {  
-      mail body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', mimeType: 'text/html', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "${env.tomail}";  
+      mail body: "<b>Example</b><br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", cc: '', charset: 'UTF-8', mimeType: 'text/html', subject: "ERROR CI: Project name -> ${env.JOB_NAME}", to: "horzsolt2006@gmail.com";
     }      
   }
 }
