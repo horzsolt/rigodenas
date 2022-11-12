@@ -28,3 +28,6 @@ def test_compare_versions():
     limit_version = [7,2,7,1]
 
     assert limit_version == version
+
+def test_string_format():
+    print("Exception %s", None)
