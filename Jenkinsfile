@@ -10,6 +10,7 @@ pipeline {
         image 'python:3-alpine'
     }
   }
+  
   stages {
     stage('Checkout') {
       steps {
