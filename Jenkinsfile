@@ -5,11 +5,7 @@ pipeline {
     timestamps() // Append timestamps to each line
     timeout(time: 20, unit: 'MINUTES') // Set a timeout on the total execution time of the job
   }
-  agent {
-    docker {
-        image 'python:3-alpine'
-    }
-  }
+  agent any
   stages {
     stage('Checkout') {
       steps {

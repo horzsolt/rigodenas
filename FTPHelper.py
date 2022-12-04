@@ -1,6 +1,5 @@
 import os
 from datetime import datetime, timedelta
-from dateutil import parser
 from loghelper import logger, song_logger
 from elastichelper import es_store_record
 from string import digits

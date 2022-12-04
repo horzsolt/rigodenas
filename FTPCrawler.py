@@ -1,6 +1,6 @@
 from loghelper import logger
 from datetime import datetime, timedelta
-from ftphelper import FtpCrawler
+from FTPHelper import FtpCrawler
 from codetiming import Timer
 import sys
 
