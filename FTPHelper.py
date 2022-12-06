@@ -34,8 +34,9 @@ class FtpCrawler():
         #_ftp.encoding = 'cp1252'
         #_ftp.set_pasv(True)
 
-        self.ftp = reconnecting_ftp.Client(self.host, 7777, self.user, self.pwd)
-        self.ftp.makepasv()
+        self.ftp = reconnecting_ftp.Client(self.host, 7777, self.user, self.pwd, encoding='cp1252')
+        logger.debug("FTP - connecting in active mode...")
+        #self.ftp.makepasv()
         return self
 
     def __exit__(self, type, value, traceback):
