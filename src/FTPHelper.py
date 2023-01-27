@@ -1,9 +1,7 @@
 import os
-from datetime import datetime, timedelta
 from loghelper import logger, song_logger
 from elastichelper import es_store_record
-from string import digits
-from songhelper import favourites, banned
+from songhelper import favourites, banned, has_valid_year_in_title
 from ftpfile import FtpFile
 from configparser import ConfigParser
 from codetiming import Timer
@@ -41,8 +39,8 @@ class FtpCrawler():
 
     def __exit__(self, type, value, traceback):
 
-        logger.debug("Downloaded BT {}".format(len(self.queue_bt)))
-        logger.debug("Downloaded 0Day {}".format(len(self.queue_oday)))
+        logger.debug("Downloaded BT %s", len(self.queue_bt))
+        logger.debug("Downloaded 0Day %s", len(self.queue_oday))
         self.ftp.close()
 
     def download_queue_bt(self, directory):
@@ -61,18 +59,20 @@ class FtpCrawler():
 
             self.ftp.cwd(ftpfile.directory)
 
-            logger.debug(f"Listing directory {ftpfile.directory}")
+            logger.debug("Listing directory %s", ftpfile.directory)
             for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
-                logger.debug(f"Checking filename {filename}")
+                logger.debug("Checking filename %s ", filename)
 
-                destination_dir = os.path.join(self.download_root, directory, ftpfile.group, ftpfile.directory)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,
+                    ftpfile.directory)
                 if not os.path.exists(destination_dir):
                     os.makedirs(destination_dir)
 
-                local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org','').replace('_', ' '))
+                local_filename = os.path.join(destination_dir,
+                    filename.replace('-www.groovytunes.org','').replace('_', ' '))
 
                 if not os.path.exists(local_filename):
-                    if (ftpfile.size < 52914560):
+                    if ftpfile.size < 52914560:
                         logger.info(f"Downloading {filename} to {local_filename}")
 
                         timer.start()
@@ -81,9 +81,9 @@ class FtpCrawler():
                         file.close()
                         timer.stop()
                     else:
-                        logger.warn(f"Skip oversized file {filename}")
+                        logger.info("Skip oversized file %s" ,filename)
                 else:
-                    logger.info(f"File already exists {local_filename}.")
+                    logger.info("File already exists %s", local_filename)
 
             clean_download_directory(destination_dir)
             self.ftp.cwd("..")
@@ -106,30 +106,31 @@ class FtpCrawler():
 
             self.ftp.cwd(ftpfile.directory)
 
-            for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')): #first entry is always a sub directory
-                logger.debug(f"Checking filename {filename}")
-                destination_dir = os.path.join(self.download_root, directory, ftpfile.group, ftpfile.directory)
+            #first entry is always a sub directory
+            for filename in (path for path in self.ftp.nlst() if path not in ('.', '..')):
+                logger.debug("Checking filename %s", filename)
+                destination_dir = os.path.join(self.download_root, directory, ftpfile.group,
+                    ftpfile.directory)
                 if not os.path.exists(destination_dir):
                     os.makedirs(destination_dir)
 
-                local_filename = os.path.join(destination_dir, filename.replace('-www.groovytunes.org',''))
+                local_filename = os.path.join(destination_dir,
+                    filename.replace('-www.groovytunes.org',''))
 
-                if (filename.startswith('-[')):
+                if filename.startswith('-['):
                     os.makedirs(local_filename)
                 else:
                     if not os.path.exists(local_filename):
-                        if (ftpfile.size < 52914560):
-                            logger.info(f"Downloading {filename} to {local_filename} with size {ftpfile.size}")
-
+                        if ftpfile.size < 52914560:
                             timer.start()
                             file = open(local_filename, 'wb')
                             self.ftp.retrbinary('RETR '+ filename, file.write)
                             file.close()
                             timer.stop()
                         else:
-                            logger.warn(f"Skip oversized file {filename}")
+                            logger.info("Skip oversized file %s", filename)
                     else:
-                        logger.warn(f"File already exists {local_filename}.")
+                        logger.info("File already exists %s", local_filename)
 
             clean_download_directory(destination_dir)
             self.ftp.cwd("..")
@@ -166,11 +167,12 @@ class FtpCrawler():
 
                 result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):
-                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
-                    if (len(result) > 0):
-                        if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
-                            logger.info(f"Adding to BT q {entry}")
-                            self.queue_bt.append(ftpFile)
+                    if has_valid_year_in_title(entry):
+                        result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
+                        if (len(result) > 0):
+                            if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
+                                logger.info(f"Adding to BT q {entry}")
+                                self.queue_bt.append(ftpFile)
 
                 self.matcher_list.append(entry)
                 self.ftp.cwd('..')
@@ -207,11 +209,12 @@ class FtpCrawler():
 
                 result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):
-                    result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
-                    if (len(result) > 0):
-                        if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
-                            logger.info(f"Adding to 0-day q {entry}")
-                            self.queue_oday.append(ftpFile)
+                    if has_valid_year_in_title(entry):
+                        result = [fav_element for fav_element in favourites if fav_element.upper() in entry.upper().replace(' ', '_')]
+                        if (len(result) > 0):
+                            if (len(difflib.get_close_matches(entry, self.matcher_list)) == 0):
+                                logger.info(f"Adding to 0-day q {entry}")
+                                self.queue_oday.append(ftpFile)
 
                 self.matcher_list.append(entry)
                 self.ftp.cwd('..')
