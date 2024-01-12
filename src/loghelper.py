@@ -1,4 +1,5 @@
 import logging
+import sys
 
 def setup_logger(name, log_file, formatter, level=logging.DEBUG):
 
@@ -14,4 +15,14 @@ def setup_logger(name, log_file, formatter, level=logging.DEBUG):
 song_formatter = logging.Formatter('')
 song_logger = setup_logger('first_logger', 'songs.log', song_formatter)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logger = setup_logger('error_logger', 'application.log', formatter, logging.DEBUG)
+##logger = setup_logger('error_logger', 'application.log', formatter, logging.DEBUG)
+logging.basicConfig(filename="application.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+ 
+# Creating an object
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler(sys.stdout))
+ 
+# Setting the threshold of logger to DEBUG
+logger.setLevel(logging.DEBUG)

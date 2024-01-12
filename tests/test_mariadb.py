@@ -1,7 +1,6 @@
 import sys
 import pytest
-sys.path.append('..')
-from mariadbhelper import MariaDBHelper
+from src.mariadbhelper import MariaDBHelper
 
 @pytest.mark.skip(reason="no reason of currently testing this")
 def test_dailysum():

@@ -1,6 +1,5 @@
 import os
 from loghelper import logger, song_logger
-from elastichelper import es_store_record
 from songhelper import favourites, banned, has_valid_year_in_title
 from ftpfile import FtpFile
 from configparser import ConfigParser
@@ -8,11 +7,13 @@ from codetiming import Timer
 import difflib
 import reconnecting_ftp
 from local_file_helper import clean_download_directory
+from postgreshelper import PostgresHelper
 
 class FtpCrawler():
 
     def __init__(self):
 
+        self.pg = PostgresHelper()
         config_object = ConfigParser()
         config_object.read(os.path.join(os.path.dirname(os.path.realpath(__file__)),"config.ini"))
         serverinfo = config_object["CONFIG"]
@@ -33,6 +34,7 @@ class FtpCrawler():
         #_ftp.set_pasv(True)
 
         self.ftp = reconnecting_ftp.Client(self.host, 7777, self.user, self.pwd, encoding='cp1252')
+        self.pg._connect()
         logger.debug("FTP - connecting in active mode...")
         #self.ftp.makepasv()
         return self
@@ -41,6 +43,7 @@ class FtpCrawler():
 
         logger.debug("Downloaded BT %s", len(self.queue_bt))
         logger.debug("Downloaded 0Day %s", len(self.queue_oday))
+        self.pg._disconnect()
         self.ftp.close()
 
     def download_queue_bt(self, directory):
@@ -80,12 +83,15 @@ class FtpCrawler():
                         self.ftp.retrbinary('RETR '+ filename, file.write)
                         file.close()
                         timer.stop()
+
+                        self.pg.pg_store_record(FtpFile("DOWNLOAD", ftpfile.directory, ftpfile.path + ftpfile.directory))
                     else:
                         logger.info("Skip oversized file %s" ,filename)
                 else:
                     logger.info("File already exists %s", local_filename)
 
-            clean_download_directory(destination_dir)
+            if (destination_dir):
+                clean_download_directory(destination_dir)
             self.ftp.cwd("..")
 
     def download_queue_oday(self, directory):
@@ -118,7 +124,8 @@ class FtpCrawler():
                     filename.replace('-www.groovytunes.org',''))
 
                 if filename.startswith('-['):
-                    os.makedirs(local_filename)
+                    if not os.path.exists(local_filename):
+                        os.makedirs(local_filename)
                 else:
                     if not os.path.exists(local_filename):
                         if ftpfile.size < 52914560:
@@ -127,6 +134,8 @@ class FtpCrawler():
                             self.ftp.retrbinary('RETR '+ filename, file.write)
                             file.close()
                             timer.stop()
+
+                            self.pg.pg_store_record(FtpFile("DOWNLOAD", ftpfile.directory, ftpfile.path + ftpfile.directory))
                         else:
                             logger.info("Skip oversized file %s", filename)
                     else:
@@ -140,9 +149,12 @@ class FtpCrawler():
         self.ftp.cwd(path)
         self.ftp.cwd(directory)
 
+        print(path)
+        print(directory)
+
         for entry in (path for path in self.ftp.nlst() if path not in ('.', '..')):
             try:
-                logger.debug("Entering directory: {}".format(entry))
+                print("Entering directory: {}".format(entry))
                 self.ftp.cwd(entry)
 
                 ftpFile = FtpFile("BEATPORT__AND__WEBSITE_SECTION", entry, path + directory)
@@ -163,7 +175,8 @@ class FtpCrawler():
                     ftpFile.size = size
 
                 logger.debug(ftpFile)
-                es_store_record(ftpFile.toDict())
+                self.pg.pg_store_record(ftpFile)
+
 
                 result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):
@@ -205,7 +218,7 @@ class FtpCrawler():
                         largest = size
                         ftpFile.size = size
 
-                es_store_record(ftpFile.toDict())
+                self.pg.pg_store_record(ftpFile)
 
                 result = [fav_element for fav_element in banned if fav_element.upper() in entry.upper().replace(' ', '_')]
                 if (len(result) == 0):

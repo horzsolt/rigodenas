@@ -1,8 +1,6 @@
-#import sys
 import pytest
 import logging
 import difflib
-#sys.path.append('..')
 from src.songhelper import banned,favourites,has_valid_year_in_title
 
 LOGGER = logging.getLogger(__name__)

@@ -17,6 +17,10 @@ class FtpFile:
     @property
     def group(self):
         return self._group
+    
+    @group.setter
+    def group(self, new_group):
+        self._group = new_group    
 
     @property
     def directory(self):

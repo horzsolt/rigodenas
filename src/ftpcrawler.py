@@ -12,7 +12,6 @@ try:
     if (len(sys.argv) == 2):
         today_directory = sys.argv[1]
 
-    logger.debug(today_directory)
     print("Crawling {}".format(today_directory))
 
     timer = Timer("ftp", text="Finished in {minutes:.1f} minutes")

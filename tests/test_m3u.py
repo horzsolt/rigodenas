@@ -1,7 +1,6 @@
 import sys
 import pytest
-sys.path.append('..')
-from m3u import generate_m3u
+from src.m3u import generate_m3u
 
 @pytest.mark.skip(reason="Temporarily disabled")
 def test_m3u_gen():

@@ -1,7 +1,6 @@
 import sys
 import pytest
-sys.path.append('..')
-from mailer import send_plaintext_mail, send_html_mail
+from src.mailer import send_plaintext_mail, send_html_mail
 
 def test_mailer():
     send_plaintext_mail("testing testing")

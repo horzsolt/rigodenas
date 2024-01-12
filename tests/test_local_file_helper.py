@@ -1,9 +1,6 @@
-import sys
 import os
 import pytest
-
-sys.path.append('..')
-from local_file_helper import clean_download_directory
+from src.local_file_helper import clean_download_directory
 
 @pytest.mark.skip(reason="Not needed atm")
 def test_cleaning():

@@ -1,7 +1,6 @@
 import sys
 import pytest
-sys.path.append('..')
-from mp3helper import get_audio_info
+from src.mp3helper import get_audio_info
 
 @pytest.mark.skip(reason="Temporarily disabled")
 def test_audio_info():

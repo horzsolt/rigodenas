@@ -1,7 +1,6 @@
 import sys
 import pytest
-sys.path.append('..')
-import mirhelper
+import src.mirhelper
 
 @pytest.mark.skip(reason="Slow test (> 1 min), skipping")
 def test_get_beat():
