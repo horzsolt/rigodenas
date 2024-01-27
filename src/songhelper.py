@@ -41,7 +41,8 @@ favourites = ("TALE_OF_US", "UMEK", "ANJUNA", "JEROME_ISMA", "BUUREN", "DIGWEED"
             "pugliesi", "BLR_", "Oxia", "Masseyeff", "JAAR",
             "SHANE54", "SHANE_54", "Tenerfuse", "Abity", "Anakim", "ANUQRAM", "COCHO", "Neuland",
             "Einmusik", "evgeny_lebedev", "FLOA", "humantronic", "capuano",
-            "Léger", "LEGER", "MUIR", "Kolsch", "Monolink", "Moonbootica", "Federico_Geckard")
+            "Léger", "LEGER", "MUIR", "Kolsch", "Monolink", "Moonbootica", "Federico_Geckard", 
+            "Lilly_Palmer", "Lilly.Palmer", "rodhad", "ignez", "lacchesi", "mekkanikka")
 
 banned = ("AFRO", "HARDSTYLE", "HARD", "GOA", "DRUM_AND_BASS", "_PSY_", "90S", "TRAP_", "TANZ",
         "CHILLHOUSE", "RETRO","HOT_DANCE", "EDM", "TECH.HOUSE",
